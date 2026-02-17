@@ -1,65 +1,184 @@
-import Image from "next/image";
+import Link from "next/link";
+import {
+  Braces,
+  Code2,
+  FileJson,
+  FileSpreadsheet,
+  Database,
+  Zap,
+  Shield,
+  Globe,
+  ArrowRight,
+  Wrench,
+} from "lucide-react";
+import { AdBanner } from "@/components/ads/AdBanner";
 
-export default function Home() {
+const tools = [
+  {
+    name: "JSON Formatter",
+    description: "Format, validate, and minify JSON with tree view and path copying",
+    href: "/json-formatter",
+    icon: Braces,
+    gradient: "from-amber-500 to-orange-600",
+    bgGlow: "group-hover:shadow-amber-500/20",
+  },
+  {
+    name: "XML Formatter",
+    description: "Pretty-print, validate XML, and convert to JSON instantly",
+    href: "/xml-formatter",
+    icon: Code2,
+    gradient: "from-orange-500 to-red-600",
+    bgGlow: "group-hover:shadow-orange-500/20",
+  },
+  {
+    name: "YAML Validator",
+    description: "Validate YAML syntax, detect pitfalls, and convert to/from JSON",
+    href: "/yaml-validator",
+    icon: FileJson,
+    gradient: "from-emerald-500 to-teal-600",
+    bgGlow: "group-hover:shadow-emerald-500/20",
+  },
+  {
+    name: "CSV ↔ JSON",
+    description: "Convert between CSV and JSON with delimiter and header options",
+    href: "/csv-json-converter",
+    icon: FileSpreadsheet,
+    gradient: "from-blue-500 to-indigo-600",
+    bgGlow: "group-hover:shadow-blue-500/20",
+  },
+  {
+    name: "SQL Formatter",
+    description: "Beautify SQL with multi-dialect support and keyword casing",
+    href: "/sql-formatter",
+    icon: Database,
+    gradient: "from-purple-500 to-violet-600",
+    bgGlow: "group-hover:shadow-purple-500/20",
+  },
+];
+
+const features = [
+  {
+    icon: Zap,
+    title: "Blazing Fast",
+    description: "Sub-second processing for files up to 10 MB. All operations run instantly in your browser.",
+  },
+  {
+    icon: Shield,
+    title: "100% Private",
+    description: "Zero data transmission. All processing happens client-side. Your data never leaves your browser.",
+  },
+  {
+    icon: Globe,
+    title: "Works Everywhere",
+    description: "Responsive design works on desktop, tablet, and mobile. Dark mode included.",
+  },
+];
+
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex flex-col">
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-primary/10 to-transparent rounded-full blur-3xl opacity-50" />
+        <div className="relative mx-auto max-w-screen-xl px-4 py-20 md:py-32 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-6">
+            <Wrench className="h-3.5 w-3.5" />
+            Free & Open Developer Tools
+          </div>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
+            <span className="bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
+              Developer Data Tools,
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              All in One Place
+            </span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+          <p className="mx-auto max-w-2xl text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed">
+            Format, validate, and convert JSON, XML, YAML, CSV, and SQL — all client-side.
+            No installs, no data transmission, no sign-up required.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/json-formatter"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+              Get Started
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Tool Cards */}
+      <section className="mx-auto max-w-screen-xl px-4 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            Five Essential Tools
+          </h2>
+          <p className="text-muted-foreground max-w-xl mx-auto">
+            Everything you need for everyday data formatting and validation tasks
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {tools.map((tool) => {
+            const Icon = tool.icon;
+            return (
+              <Link
+                key={tool.href}
+                href={tool.href}
+                className={`group relative flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${tool.bgGlow}`}
+              >
+                <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${tool.gradient} shadow-lg`}>
+                  <Icon className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold mb-1 group-hover:text-primary transition-colors">
+                    {tool.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {tool.description}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  Open tool <ArrowRight className="h-3.5 w-3.5" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
-      </main>
+      </section>
+
+      {/* Ad placement between sections */}
+      <div className="mx-auto max-w-screen-xl px-4 py-4">
+        <AdBanner slot="home-mid" format="horizontal" />
+      </div>
+
+      {/* Features */}
+      <section className="mx-auto max-w-screen-xl px-4 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {features.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <div key={feature.title} className="text-center md:text-left">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 mb-4">
+                  <Icon className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Bottom ad */}
+      <div className="mx-auto max-w-screen-xl px-4 py-4">
+        <AdBanner slot="home-bottom" format="horizontal" />
+      </div>
     </div>
   );
 }
