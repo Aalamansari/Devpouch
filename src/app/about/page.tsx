@@ -3,17 +3,17 @@ import { Shield, Zap, Code2 } from "lucide-react";
 
 export const metadata: Metadata = {
     title: "About",
-    description: "About DevToolKit — a privacy-first suite of developer data formatting and validation tools.",
+    description: "About Devpouch — a privacy-first suite of developer data formatting and validation tools.",
 };
 
 export default function AboutPage() {
     return (
         <div className="mx-auto max-w-3xl px-4 py-16">
-            <h1 className="text-3xl font-bold mb-6">About DevToolKit</h1>
+            <h1 className="text-3xl font-bold mb-6">About Devpouch</h1>
 
             <div className="prose prose-neutral dark:prose-invert max-w-none">
                 <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-                    DevToolKit is a free, browser-based platform providing developers with essential data formatting
+                    Devpouch is a free, browser-based platform providing developers with essential data formatting
                     and validation tools. Our mission is to eliminate the need for scattered online utilities and
                     provide a single, reliable, privacy-first toolkit.
                 </p>
@@ -70,7 +70,7 @@ export default function AboutPage() {
 
                 <h2 className="text-2xl font-bold mb-4">Privacy Policy</h2>
                 <p className="text-muted-foreground mb-4">
-                    DevToolKit processes all data entirely within your web browser. No data is ever sent to our
+                    Devpouch processes all data entirely within your web browser. No data is ever sent to our
                     servers or any third party. We use privacy-friendly analytics that do not use cookies or
                     collect personal information.
                 </p>

@@ -3,20 +3,20 @@
 import { useState, useCallback } from "react";
 import { Toolbar } from "@/components/editor/Toolbar";
 import { StatusBar } from "@/components/editor/StatusBar";
+import { EditorPanel } from "@/components/editor/EditorPanel";
 import { formatSql, minifySql, SQL_DIALECTS, KEYWORD_CASES } from "@/lib/tools/sql/sqlEngine";
 import { AdBanner } from "@/components/ads/AdBanner";
+import { useAppStore } from "@/store/store";
 import type { KeywordCase, SqlLanguage } from "sql-formatter";
 
-const SAMPLE_SQL = `SELECT u.id, u.name, u.email, o.order_id, o.total_amount, o.created_at FROM users u INNER JOIN orders o ON u.id = o.user_id LEFT JOIN payments p ON o.order_id = p.order_id WHERE u.status = 'active' AND o.created_at >= '2024-01-01' AND o.total_amount > 100 GROUP BY u.id, u.name, u.email, o.order_id, o.total_amount, o.created_at HAVING COUNT(o.order_id) > 5 ORDER BY o.total_amount DESC LIMIT 50;`;
-
 export default function SqlFormatterPage() {
-    const [input, setInput] = useState(SAMPLE_SQL);
-    const [output, setOutput] = useState("");
-    const [error, setError] = useState<string | null>(null);
-    const [processingTime, setProcessingTime] = useState<number | null>(null);
+    const { toolStates, setToolInput, setToolOutput, clearTool } = useAppStore();
+    const { input, output, error, processingTime } = toolStates.sql;
     const [dialect, setDialect] = useState<string>("sql");
     const [indent, setIndent] = useState(2);
     const [keywordCase, setKeywordCase] = useState<KeywordCase>("upper");
+
+    const setInput = useCallback((val: string) => setToolInput("sql", val), [setToolInput]);
 
     const handleFormat = useCallback(() => {
         const start = performance.now();
@@ -25,18 +25,16 @@ export default function SqlFormatterPage() {
             indent,
             keywordCase,
         });
-        setProcessingTime(Math.round(performance.now() - start));
-        setOutput(result.output);
-        setError(result.error ? result.error.message : null);
-    }, [input, dialect, indent, keywordCase]);
+        const time = Math.round(performance.now() - start);
+        setToolOutput("sql", result.output, result.error ? result.error.message : null, time);
+    }, [input, dialect, indent, keywordCase, setToolOutput]);
 
     const handleMinify = useCallback(() => {
         const start = performance.now();
         const result = minifySql(input);
-        setProcessingTime(Math.round(performance.now() - start));
-        setOutput(result.output);
-        setError(result.error ? result.error.message : null);
-    }, [input]);
+        const time = Math.round(performance.now() - start);
+        setToolOutput("sql", result.output, result.error ? result.error.message : null, time);
+    }, [input, setToolOutput]);
 
     const handleCopy = useCallback(() => {
         navigator.clipboard.writeText(output || input);
@@ -53,17 +51,13 @@ export default function SqlFormatterPage() {
     }, [output, input]);
 
     const handleClear = useCallback(() => {
-        setInput("");
-        setOutput("");
-        setError(null);
-        setProcessingTime(null);
-    }, []);
+        clearTool("sql");
+    }, [clearTool]);
 
     const handleFileUpload = useCallback((content: string) => {
-        setInput(content);
-        setOutput("");
-        setError(null);
-    }, []);
+        setToolInput("sql", content);
+        setToolOutput("sql", "", null, null);
+    }, [setToolInput, setToolOutput]);
 
     return (
         <div className="flex flex-col h-[calc(100vh-3.5rem)]">
@@ -109,11 +103,7 @@ export default function SqlFormatterPage() {
             />
 
             <div className="flex-1 flex flex-col md:flex-row min-h-0">
-                <div className="flex-1 flex flex-col min-h-0 border-b md:border-b-0 md:border-r border-border">
-                    <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border"
-                        style={{ background: "var(--editor-gutter)" }}>
-                        Input (SQL)
-                    </div>
+                <EditorPanel label="Input (SQL)" className="border-b md:border-b-0 md:border-r border-border">
                     <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -121,13 +111,9 @@ export default function SqlFormatterPage() {
                         placeholder="Paste your SQL here..."
                         spellCheck={false}
                     />
-                </div>
+                </EditorPanel>
 
-                <div className="flex-1 flex flex-col min-h-0">
-                    <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border"
-                        style={{ background: "var(--editor-gutter)" }}>
-                        Output (SQL)
-                    </div>
+                <EditorPanel label="Output (SQL)">
                     <textarea
                         value={output}
                         readOnly
@@ -135,7 +121,7 @@ export default function SqlFormatterPage() {
                         placeholder="Formatted output will appear here..."
                         spellCheck={false}
                     />
-                </div>
+                </EditorPanel>
             </div>
 
             <StatusBar

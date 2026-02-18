@@ -10,7 +10,7 @@ export function Footer() {
                         <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-primary to-accent">
                             <Wrench className="h-3 w-3 text-white" />
                         </div>
-                        <span className="text-sm font-semibold text-muted-foreground">DevToolKit</span>
+                        <span className="text-sm font-semibold text-muted-foreground">Devpouch</span>
                     </div>
                     <div className="flex items-center gap-6">
                         <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

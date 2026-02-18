@@ -1,53 +1,43 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { Toolbar } from "@/components/editor/Toolbar";
 import { StatusBar } from "@/components/editor/StatusBar";
+import { CodeViewer } from "@/components/editor/CodeViewer";
+import { EditorPanel } from "@/components/editor/EditorPanel";
 import { formatJson, minifyJson, validateJson } from "@/lib/tools/json/jsonEngine";
 import { AdBanner } from "@/components/ads/AdBanner";
-
-const SAMPLE_JSON = `{
-  "name": "DevToolKit",
-  "version": "1.0.0",
-  "description": "Developer data formatting tools",
-  "tools": ["JSON", "XML", "YAML", "CSV", "SQL"],
-  "features": {
-    "clientSide": true,
-    "darkMode": true,
-    "responsive": true
-  }
-}`;
+import { useAppStore } from "@/store/store";
 
 export default function JsonFormatterPage() {
-    const [input, setInput] = useState(SAMPLE_JSON);
-    const [output, setOutput] = useState("");
-    const [error, setError] = useState<string | null>(null);
-    const [processingTime, setProcessingTime] = useState<number | null>(null);
+    const { toolStates, setToolInput, setToolOutput, clearTool } = useAppStore();
+    const { input, output, error, processingTime } = toolStates.json;
     const [indent, setIndent] = useState(2);
+
+    const setInput = useCallback((val: string) => setToolInput("json", val), [setToolInput]);
 
     const handleFormat = useCallback(() => {
         const start = performance.now();
         const result = formatJson(input, indent);
-        setProcessingTime(Math.round(performance.now() - start));
-        setOutput(result.output);
-        setError(result.error ? `${result.error.message}${result.error.line ? ` (line ${result.error.line})` : ""}` : null);
-    }, [input, indent]);
+        const time = Math.round(performance.now() - start);
+        const err = result.error ? `${result.error.message}${result.error.line ? ` (line ${result.error.line})` : ""}` : null;
+        setToolOutput("json", result.output, err, time);
+    }, [input, indent, setToolOutput]);
 
     const handleMinify = useCallback(() => {
         const start = performance.now();
         const result = minifyJson(input);
-        setProcessingTime(Math.round(performance.now() - start));
-        setOutput(result.output);
-        setError(result.error ? result.error.message : null);
-    }, [input]);
+        const time = Math.round(performance.now() - start);
+        setToolOutput("json", result.output, result.error ? result.error.message : null, time);
+    }, [input, setToolOutput]);
 
     const handleValidate = useCallback(() => {
         const start = performance.now();
         const result = validateJson(input);
-        setProcessingTime(Math.round(performance.now() - start));
-        setOutput(result.output);
-        setError(result.error ? `${result.error.message}${result.error.line ? ` (line ${result.error.line})` : ""}` : null);
-    }, [input]);
+        const time = Math.round(performance.now() - start);
+        const err = result.error ? `${result.error.message}${result.error.line ? ` (line ${result.error.line})` : ""}` : null;
+        setToolOutput("json", result.output, err, time);
+    }, [input, setToolOutput]);
 
     const handleCopy = useCallback(() => {
         navigator.clipboard.writeText(output || input);
@@ -64,17 +54,13 @@ export default function JsonFormatterPage() {
     }, [output, input]);
 
     const handleClear = useCallback(() => {
-        setInput("");
-        setOutput("");
-        setError(null);
-        setProcessingTime(null);
-    }, []);
+        clearTool("json");
+    }, [clearTool]);
 
     const handleFileUpload = useCallback((content: string) => {
-        setInput(content);
-        setOutput("");
-        setError(null);
-    }, []);
+        setToolInput("json", content);
+        setToolOutput("json", "", null, null);
+    }, [setToolInput, setToolOutput]);
 
     return (
         <div className="flex flex-col h-[calc(100vh-3.5rem)]">
@@ -103,12 +89,7 @@ export default function JsonFormatterPage() {
 
             {/* Editor panels */}
             <div className="flex-1 flex flex-col md:flex-row min-h-0">
-                {/* Input */}
-                <div className="flex-1 flex flex-col min-h-0 border-b md:border-b-0 md:border-r border-border">
-                    <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border"
-                        style={{ background: "var(--editor-gutter)" }}>
-                        Input
-                    </div>
+                <EditorPanel label="Input" className="border-b md:border-b-0 md:border-r border-border">
                     <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -116,23 +97,11 @@ export default function JsonFormatterPage() {
                         placeholder="Paste your JSON here..."
                         spellCheck={false}
                     />
-                </div>
+                </EditorPanel>
 
-                {/* Output */}
-                <div className="flex-1 flex flex-col min-h-0">
-                    <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border"
-                        style={{ background: "var(--editor-gutter)" }}>
-                        Output
-                    </div>
-                    <textarea
-                        value={output}
-                        readOnly
-                        className={`flex-1 w-full resize-none bg-[var(--editor-bg)] p-4 font-mono text-sm leading-relaxed outline-none ${error ? "text-destructive" : ""
-                            }`}
-                        placeholder="Formatted output will appear here..."
-                        spellCheck={false}
-                    />
-                </div>
+                <EditorPanel label="Output">
+                    <CodeViewer content={output} language="json" error={!!error} />
+                </EditorPanel>
             </div>
 
             {/* Status bar */}

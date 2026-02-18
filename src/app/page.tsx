@@ -12,6 +12,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { AdBanner } from "@/components/ads/AdBanner";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 const tools = [
   {
@@ -74,9 +75,47 @@ const features = [
   },
 ];
 
+const faqs = [
+  {
+    question: "Is Devpouch really free to use?",
+    answer: "Yes, Devpouch is 100% free with no sign-up, no usage limits, and no hidden fees. All tools are available instantly in your browser.",
+  },
+  {
+    question: "Is my data safe when using Devpouch?",
+    answer: "Absolutely. All data processing happens entirely in your browser using JavaScript. Your data is never sent to any server. There is zero data transmission — we cannot see, store, or access your data.",
+  },
+  {
+    question: "What formats does Devpouch support?",
+    answer: "Devpouch supports JSON (format, validate, minify), XML (format, validate, convert to JSON), YAML (validate, convert to/from JSON), CSV (convert to/from JSON with custom delimiters), and SQL (format with multi-dialect support including MySQL, PostgreSQL, T-SQL, Oracle, and SQLite).",
+  },
+  {
+    question: "Do I need to install anything?",
+    answer: "No installation required. Devpouch runs entirely in your web browser. Just open the website and start formatting. It works on desktop, tablet, and mobile.",
+  },
+  {
+    question: "Can I use Devpouch offline?",
+    answer: "Devpouch requires an initial page load, but since all processing is client-side, you can continue using the tools even with an intermittent connection once the page is loaded.",
+  },
+];
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  })),
+};
+
 export default function HomePage() {
   return (
     <div className="flex flex-col">
+      <JsonLd data={faqJsonLd} />
+
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
@@ -172,6 +211,36 @@ export default function HomePage() {
               </div>
             );
           })}
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="mx-auto max-w-screen-xl px-4 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-muted-foreground max-w-xl mx-auto">
+            Common questions about Devpouch developer tools
+          </p>
+        </div>
+        <div className="max-w-3xl mx-auto space-y-4">
+          {faqs.map((faq) => (
+            <details
+              key={faq.question}
+              className="group rounded-xl border border-border bg-card p-4 transition-all"
+            >
+              <summary className="flex cursor-pointer items-center justify-between text-sm font-semibold list-none">
+                {faq.question}
+                <span className="ml-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180">
+                  &#9662;
+                </span>
+              </summary>
+              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                {faq.answer}
+              </p>
+            </details>
+          ))}
         </div>
       </section>
 

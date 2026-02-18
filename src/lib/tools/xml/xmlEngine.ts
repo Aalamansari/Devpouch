@@ -49,8 +49,14 @@ export function formatXml(input: string, indent: number = 2): XmlResult {
             indentBy: " ".repeat(indent),
             suppressEmptyNode: false,
         });
-        const output = builder.build(parsed);
-        return { success: true, output: output.trim() };
+        const raw = builder.build(parsed);
+        // fast-xml-parser with preserveOrder inserts spurious blank lines; strip them all
+        const output = raw
+            .split("\n")
+            .filter((line: string) => line.trim() !== "")
+            .join("\n")
+            .trim();
+        return { success: true, output };
     } catch (e: unknown) {
         const errorMsg = e instanceof Error ? e.message : "Failed to format XML";
         return {

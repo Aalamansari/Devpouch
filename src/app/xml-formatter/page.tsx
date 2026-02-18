@@ -3,44 +3,35 @@
 import { useState, useCallback } from "react";
 import { Toolbar } from "@/components/editor/Toolbar";
 import { StatusBar } from "@/components/editor/StatusBar";
+import { CodeViewer } from "@/components/editor/CodeViewer";
+import { EditorPanel } from "@/components/editor/EditorPanel";
 import { formatXml, validateXml, xmlToJson } from "@/lib/tools/xml/xmlEngine";
 import { AdBanner } from "@/components/ads/AdBanner";
-
-const SAMPLE_XML = `<?xml version="1.0" encoding="UTF-8"?>
-<project>
-  <name>DevToolKit</name>
-  <version>1.0.0</version>
-  <description>Developer data formatting tools</description>
-  <tools>
-    <tool id="1">JSON Formatter</tool>
-    <tool id="2">XML Formatter</tool>
-    <tool id="3">YAML Validator</tool>
-  </tools>
-</project>`;
+import { useAppStore } from "@/store/store";
 
 export default function XmlFormatterPage() {
-    const [input, setInput] = useState(SAMPLE_XML);
-    const [output, setOutput] = useState("");
-    const [error, setError] = useState<string | null>(null);
-    const [processingTime, setProcessingTime] = useState<number | null>(null);
+    const { toolStates, setToolInput, setToolOutput, clearTool } = useAppStore();
+    const { input, output, error, processingTime } = toolStates.xml;
     const [indent, setIndent] = useState(2);
     const [mode, setMode] = useState<"format" | "toJson">("format");
+
+    const setInput = useCallback((val: string) => setToolInput("xml", val), [setToolInput]);
 
     const handleFormat = useCallback(() => {
         const start = performance.now();
         const result = mode === "toJson" ? xmlToJson(input, indent) : formatXml(input, indent);
-        setProcessingTime(Math.round(performance.now() - start));
-        setOutput(result.output);
-        setError(result.error ? `${result.error.message}${result.error.line ? ` (line ${result.error.line})` : ""}` : null);
-    }, [input, indent, mode]);
+        const time = Math.round(performance.now() - start);
+        const err = result.error ? `${result.error.message}${result.error.line ? ` (line ${result.error.line})` : ""}` : null;
+        setToolOutput("xml", result.output, err, time);
+    }, [input, indent, mode, setToolOutput]);
 
     const handleValidate = useCallback(() => {
         const start = performance.now();
         const result = validateXml(input);
-        setProcessingTime(Math.round(performance.now() - start));
-        setOutput(result.output);
-        setError(result.error ? `${result.error.message}${result.error.line ? ` (line ${result.error.line})` : ""}` : null);
-    }, [input]);
+        const time = Math.round(performance.now() - start);
+        const err = result.error ? `${result.error.message}${result.error.line ? ` (line ${result.error.line})` : ""}` : null;
+        setToolOutput("xml", result.output, err, time);
+    }, [input, setToolOutput]);
 
     const handleCopy = useCallback(() => {
         navigator.clipboard.writeText(output || input);
@@ -58,17 +49,13 @@ export default function XmlFormatterPage() {
     }, [output, input, mode]);
 
     const handleClear = useCallback(() => {
-        setInput("");
-        setOutput("");
-        setError(null);
-        setProcessingTime(null);
-    }, []);
+        clearTool("xml");
+    }, [clearTool]);
 
     const handleFileUpload = useCallback((content: string) => {
-        setInput(content);
-        setOutput("");
-        setError(null);
-    }, []);
+        setToolInput("xml", content);
+        setToolOutput("xml", "", null, null);
+    }, [setToolInput, setToolOutput]);
 
     return (
         <div className="flex flex-col h-[calc(100vh-3.5rem)]">
@@ -104,11 +91,7 @@ export default function XmlFormatterPage() {
             />
 
             <div className="flex-1 flex flex-col md:flex-row min-h-0">
-                <div className="flex-1 flex flex-col min-h-0 border-b md:border-b-0 md:border-r border-border">
-                    <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border"
-                        style={{ background: "var(--editor-gutter)" }}>
-                        Input (XML)
-                    </div>
+                <EditorPanel label="Input (XML)" className="border-b md:border-b-0 md:border-r border-border">
                     <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -116,21 +99,11 @@ export default function XmlFormatterPage() {
                         placeholder="Paste your XML here..."
                         spellCheck={false}
                     />
-                </div>
+                </EditorPanel>
 
-                <div className="flex-1 flex flex-col min-h-0">
-                    <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border"
-                        style={{ background: "var(--editor-gutter)" }}>
-                        Output {mode === "toJson" ? "(JSON)" : "(XML)"}
-                    </div>
-                    <textarea
-                        value={output}
-                        readOnly
-                        className={`flex-1 w-full resize-none bg-[var(--editor-bg)] p-4 font-mono text-sm leading-relaxed outline-none ${error ? "text-destructive" : ""}`}
-                        placeholder="Formatted output will appear here..."
-                        spellCheck={false}
-                    />
-                </div>
+                <EditorPanel label={`Output ${mode === "toJson" ? "(JSON)" : "(XML)"}`}>
+                    <CodeViewer content={output} language={mode === "toJson" ? "json" : "xml"} error={!!error} />
+                </EditorPanel>
             </div>
 
             <StatusBar

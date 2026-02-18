@@ -42,7 +42,7 @@ export function Navbar() {
                         <Wrench className="h-4 w-4 text-white" />
                     </div>
                     <span className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                        DevToolKit
+                        Devpouch
                     </span>
                 </Link>
 

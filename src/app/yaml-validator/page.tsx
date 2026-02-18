@@ -3,33 +3,18 @@
 import { useState, useCallback } from "react";
 import { Toolbar } from "@/components/editor/Toolbar";
 import { StatusBar } from "@/components/editor/StatusBar";
+import { EditorPanel } from "@/components/editor/EditorPanel";
 import { validateYaml, yamlToJson, jsonToYaml } from "@/lib/tools/yaml/yamlEngine";
 import { AdBanner } from "@/components/ads/AdBanner";
-
-const SAMPLE_YAML = `name: DevToolKit
-version: "1.0.0"
-description: Developer data formatting tools
-
-tools:
-  - name: JSON Formatter
-    category: formatting
-  - name: XML Formatter
-    category: formatting
-  - name: YAML Validator
-    category: validation
-
-config:
-  clientSide: true
-  darkMode: true
-  responsive: true`;
+import { useAppStore } from "@/store/store";
 
 export default function YamlValidatorPage() {
-    const [input, setInput] = useState(SAMPLE_YAML);
-    const [output, setOutput] = useState("");
-    const [error, setError] = useState<string | null>(null);
+    const { toolStates, setToolInput, setToolOutput, clearTool } = useAppStore();
+    const { input, output, error, processingTime } = toolStates.yaml;
     const [warnings, setWarnings] = useState<string[]>([]);
-    const [processingTime, setProcessingTime] = useState<number | null>(null);
     const [mode, setMode] = useState<"validate" | "toJson" | "fromJson">("validate");
+
+    const setInput = useCallback((val: string) => setToolInput("yaml", val), [setToolInput]);
 
     const handleFormat = useCallback(() => {
         const start = performance.now();
@@ -44,11 +29,11 @@ export default function YamlValidatorPage() {
             default:
                 result = validateYaml(input);
         }
-        setProcessingTime(Math.round(performance.now() - start));
-        setOutput(result.output);
+        const time = Math.round(performance.now() - start);
         setWarnings(result.warnings || []);
-        setError(result.error ? `${result.error.message}${result.error.line ? ` (line ${result.error.line})` : ""}` : null);
-    }, [input, mode]);
+        const err = result.error ? `${result.error.message}${result.error.line ? ` (line ${result.error.line})` : ""}` : null;
+        setToolOutput("yaml", result.output, err, time);
+    }, [input, mode, setToolOutput]);
 
     const handleCopy = useCallback(() => {
         navigator.clipboard.writeText(output || input);
@@ -66,19 +51,15 @@ export default function YamlValidatorPage() {
     }, [output, input, mode]);
 
     const handleClear = useCallback(() => {
-        setInput("");
-        setOutput("");
-        setError(null);
+        clearTool("yaml");
         setWarnings([]);
-        setProcessingTime(null);
-    }, []);
+    }, [clearTool]);
 
     const handleFileUpload = useCallback((content: string) => {
-        setInput(content);
-        setOutput("");
-        setError(null);
+        setToolInput("yaml", content);
+        setToolOutput("yaml", "", null, null);
         setWarnings([]);
-    }, []);
+    }, [setToolInput, setToolOutput]);
 
     const actionLabel = mode === "toJson" ? "Convert to JSON" : mode === "fromJson" ? "Convert to YAML" : "Validate";
 
@@ -107,11 +88,7 @@ export default function YamlValidatorPage() {
             />
 
             <div className="flex-1 flex flex-col md:flex-row min-h-0">
-                <div className="flex-1 flex flex-col min-h-0 border-b md:border-b-0 md:border-r border-border">
-                    <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border"
-                        style={{ background: "var(--editor-gutter)" }}>
-                        Input {mode === "fromJson" ? "(JSON)" : "(YAML)"}
-                    </div>
+                <EditorPanel label={`Input ${mode === "fromJson" ? "(JSON)" : "(YAML)"}`} className="border-b md:border-b-0 md:border-r border-border">
                     <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -119,31 +96,25 @@ export default function YamlValidatorPage() {
                         placeholder={mode === "fromJson" ? "Paste your JSON here..." : "Paste your YAML here..."}
                         spellCheck={false}
                     />
-                </div>
+                </EditorPanel>
 
-                <div className="flex-1 flex flex-col min-h-0">
-                    <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border"
-                        style={{ background: "var(--editor-gutter)" }}>
-                        Output
-                    </div>
-                    <div className="flex-1 flex flex-col min-h-0">
-                        <textarea
-                            value={output}
-                            readOnly
-                            className={`flex-1 w-full resize-none bg-[var(--editor-bg)] p-4 font-mono text-sm leading-relaxed outline-none ${error ? "text-destructive" : ""}`}
-                            placeholder="Output will appear here..."
-                            spellCheck={false}
-                        />
-                        {warnings.length > 0 && (
-                            <div className="border-t border-border p-3" style={{ background: "var(--editor-gutter)" }}>
-                                <p className="text-[11px] font-semibold uppercase tracking-wider text-warning mb-1">Warnings</p>
-                                {warnings.map((w, i) => (
-                                    <p key={i} className="text-xs text-warning/80 font-mono">{w}</p>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <EditorPanel label="Output">
+                    <textarea
+                        value={output}
+                        readOnly
+                        className={`flex-1 w-full resize-none bg-[var(--editor-bg)] p-4 font-mono text-sm leading-relaxed outline-none ${error ? "text-destructive" : ""}`}
+                        placeholder="Output will appear here..."
+                        spellCheck={false}
+                    />
+                    {warnings.length > 0 && (
+                        <div className="border-t border-border p-3" style={{ background: "var(--editor-gutter)" }}>
+                            <p className="text-[11px] font-semibold uppercase tracking-wider text-warning mb-1">Warnings</p>
+                            {warnings.map((w, i) => (
+                                <p key={i} className="text-xs text-warning/80 font-mono">{w}</p>
+                            ))}
+                        </div>
+                    )}
+                </EditorPanel>
             </div>
 
             <StatusBar

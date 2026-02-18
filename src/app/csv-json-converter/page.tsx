@@ -3,30 +3,19 @@
 import { useState, useCallback } from "react";
 import { Toolbar } from "@/components/editor/Toolbar";
 import { StatusBar } from "@/components/editor/StatusBar";
+import { EditorPanel } from "@/components/editor/EditorPanel";
 import { csvToJson, jsonToCsv, type CsvToJsonOptions, type JsonToCsvOptions } from "@/lib/tools/csv/csvEngine";
 import { AdBanner } from "@/components/ads/AdBanner";
-
-const SAMPLE_CSV = `name,role,department,salary
-Alice Johnson,Developer,Engineering,95000
-Bob Smith,Designer,Design,85000
-Carol Williams,Manager,Engineering,120000
-David Brown,Analyst,Data,90000
-Eve Davis,DevOps,Infrastructure,105000`;
-
-const SAMPLE_JSON_ARRAY = `[
-  {"name": "Alice Johnson", "role": "Developer", "department": "Engineering", "salary": 95000},
-  {"name": "Bob Smith", "role": "Designer", "department": "Design", "salary": 85000},
-  {"name": "Carol Williams", "role": "Manager", "department": "Engineering", "salary": 120000}
-]`;
+import { useAppStore } from "@/store/store";
 
 export default function CsvJsonConverterPage() {
-    const [input, setInput] = useState(SAMPLE_CSV);
-    const [output, setOutput] = useState("");
-    const [error, setError] = useState<string | null>(null);
-    const [processingTime, setProcessingTime] = useState<number | null>(null);
+    const { toolStates, setToolInput, setToolOutput, clearTool } = useAppStore();
+    const { input, output, error, processingTime } = toolStates.csv;
     const [mode, setMode] = useState<"csvToJson" | "jsonToCsv">("csvToJson");
     const [delimiter, setDelimiter] = useState(",");
     const [hasHeader, setHasHeader] = useState(true);
+
+    const setInput = useCallback((val: string) => setToolInput("csv", val), [setToolInput]);
 
     const handleFormat = useCallback(() => {
         const start = performance.now();
@@ -36,10 +25,9 @@ export default function CsvJsonConverterPage() {
         } else {
             result = jsonToCsv(input, { delimiter, includeHeader: hasHeader });
         }
-        setProcessingTime(Math.round(performance.now() - start));
-        setOutput(result.output);
-        setError(result.error ? result.error.message : null);
-    }, [input, mode, delimiter, hasHeader]);
+        const time = Math.round(performance.now() - start);
+        setToolOutput("csv", result.output, result.error ? result.error.message : null, time);
+    }, [input, mode, delimiter, hasHeader, setToolOutput]);
 
     const handleCopy = useCallback(() => {
         navigator.clipboard.writeText(output || input);
@@ -57,24 +45,18 @@ export default function CsvJsonConverterPage() {
     }, [output, input, mode]);
 
     const handleClear = useCallback(() => {
-        setInput("");
-        setOutput("");
-        setError(null);
-        setProcessingTime(null);
-    }, []);
+        clearTool("csv");
+    }, [clearTool]);
 
     const handleFileUpload = useCallback((content: string) => {
-        setInput(content);
-        setOutput("");
-        setError(null);
-    }, []);
+        setToolInput("csv", content);
+        setToolOutput("csv", "", null, null);
+    }, [setToolInput, setToolOutput]);
 
     const handleModeChange = useCallback((newMode: "csvToJson" | "jsonToCsv") => {
         setMode(newMode);
-        setInput(newMode === "csvToJson" ? SAMPLE_CSV : SAMPLE_JSON_ARRAY);
-        setOutput("");
-        setError(null);
-    }, []);
+        setToolOutput("csv", "", null, null);
+    }, [setToolOutput]);
 
     return (
         <div className="flex flex-col h-[calc(100vh-3.5rem)]">
@@ -121,11 +103,7 @@ export default function CsvJsonConverterPage() {
             />
 
             <div className="flex-1 flex flex-col md:flex-row min-h-0">
-                <div className="flex-1 flex flex-col min-h-0 border-b md:border-b-0 md:border-r border-border">
-                    <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border"
-                        style={{ background: "var(--editor-gutter)" }}>
-                        Input ({mode === "csvToJson" ? "CSV" : "JSON"})
-                    </div>
+                <EditorPanel label={`Input (${mode === "csvToJson" ? "CSV" : "JSON"})`} className="border-b md:border-b-0 md:border-r border-border">
                     <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -133,13 +111,9 @@ export default function CsvJsonConverterPage() {
                         placeholder={mode === "csvToJson" ? "Paste your CSV here..." : "Paste your JSON array here..."}
                         spellCheck={false}
                     />
-                </div>
+                </EditorPanel>
 
-                <div className="flex-1 flex flex-col min-h-0">
-                    <div className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground border-b border-border"
-                        style={{ background: "var(--editor-gutter)" }}>
-                        Output ({mode === "csvToJson" ? "JSON" : "CSV"})
-                    </div>
+                <EditorPanel label={`Output (${mode === "csvToJson" ? "JSON" : "CSV"})`}>
                     <textarea
                         value={output}
                         readOnly
@@ -147,7 +121,7 @@ export default function CsvJsonConverterPage() {
                         placeholder="Converted output will appear here..."
                         spellCheck={false}
                     />
-                </div>
+                </EditorPanel>
             </div>
 
             <StatusBar

@@ -22,6 +22,20 @@
   --editor-bg: #ffffff;
   --editor-gutter: #f8fafc;
   --status-bar: #f1f5f9;
+
+  /* Syntax highlighting */
+  --syntax-key: #7c3aed;
+  --syntax-string: #059669;
+  --syntax-number: #d97706;
+  --syntax-boolean: #2563eb;
+  --syntax-null: #9ca3af;
+  --syntax-punctuation: #64748b;
+  --syntax-tag: #dc2626;
+  --syntax-attr-name: #7c3aed;
+  --syntax-attr-value: #059669;
+  --syntax-comment: #9ca3af;
+  --syntax-bracket-match: #4f46e5;
+  --syntax-bracket-match-bg: rgba(99, 102, 241, 0.35);
 }
 
 .dark {
@@ -45,6 +59,20 @@
   --editor-bg: #111827;
   --editor-gutter: #0f1629;
   --status-bar: #1e293b;
+
+  /* Syntax highlighting */
+  --syntax-key: #c4b5fd;
+  --syntax-string: #6ee7b7;
+  --syntax-number: #fbbf24;
+  --syntax-boolean: #93c5fd;
+  --syntax-null: #6b7280;
+  --syntax-punctuation: #94a3b8;
+  --syntax-tag: #fca5a5;
+  --syntax-attr-name: #c4b5fd;
+  --syntax-attr-value: #6ee7b7;
+  --syntax-comment: #6b7280;
+  --syntax-bracket-match: #a5b4fc;
+  --syntax-bracket-match-bg: rgba(129, 140, 248, 0.4);
 }
 
 @theme inline {
@@ -112,6 +140,16 @@ body {
 /* Smooth transitions for theme switching */
 *, *::before, *::after {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+}
+
+/* Bracket matching highlight */
+.bracket-highlight {
+  animation: bracket-pulse 0.4s ease-out;
+}
+@keyframes bracket-pulse {
+  0% { transform: scale(1.6); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }
 
 /* Ad container styling */

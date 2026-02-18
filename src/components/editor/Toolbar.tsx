@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback, useState, DragEvent, ChangeEvent } from "react";
+import { useRef, useCallback, useState, useEffect, DragEvent, ChangeEvent } from "react";
 import {
     Copy,
     Download,
@@ -42,6 +42,18 @@ export function Toolbar({
     const [copied, setCopied] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Ctrl+Enter triggers format (primary action)
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                e.preventDefault();
+                onFormat?.();
+            }
+        };
+        window.addEventListener("keydown", handler);
+        return () => window.removeEventListener("keydown", handler);
+    }, [onFormat]);
+
     const handleCopy = useCallback(() => {
         onCopy();
         setCopied(true);
@@ -69,10 +81,12 @@ export function Toolbar({
             {onFormat && (
                 <button
                     onClick={onFormat}
+                    title="Ctrl + Enter"
                     className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-90 active:scale-95"
                 >
                     <Play className="h-3 w-3" />
                     {formatLabel}
+                    <kbd className="ml-1 hidden sm:inline-block rounded bg-primary-foreground/20 px-1 py-0.5 text-[10px] font-mono leading-none">Ctrl+&crarr;</kbd>
                 </button>
             )}
             {showMinify && onMinify && (

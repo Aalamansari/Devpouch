@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Changelog",
-    description: "DevToolKit version history and updates.",
+    description: "Devpouch version history and updates.",
 };
 
 export default function ChangelogPage() {
@@ -22,7 +22,7 @@ export default function ChangelogPage() {
                     </div>
                     <h3 className="text-lg font-semibold mb-2">Initial Release</h3>
                     <ul className="space-y-1.5 text-sm text-muted-foreground">
-                        <li>🎉 Launch of DevToolKit platform</li>
+                        <li>🎉 Launch of Devpouch platform</li>
                         <li>📄 JSON Formatter & Validator with pretty-print, minify, and validation</li>
                         <li>📄 XML Formatter & Validator with XML-to-JSON conversion</li>
                         <li>📄 YAML Validator with YAML/JSON bidirectional conversion</li>
