@@ -191,7 +191,7 @@ export default function HomePage() {
 
       {/* Ad placement between sections */}
       <div className="mx-auto max-w-screen-xl px-4 py-4">
-        <AdBanner slot="home-mid" format="horizontal" />
+        <AdBanner />
       </div>
 
       {/* Features */}
@@ -246,7 +246,7 @@ export default function HomePage() {
 
       {/* Bottom ad */}
       <div className="mx-auto max-w-screen-xl px-4 py-4">
-        <AdBanner slot="home-bottom" format="horizontal" />
+        <AdBanner />
       </div>
     </div>
   );

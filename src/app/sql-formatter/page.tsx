@@ -131,7 +131,7 @@ export default function SqlFormatterPage() {
                 processingTime={processingTime}
                 error={error}
             />
-            <AdBanner slot="sql-footer" format="horizontal" />
+            <AdBanner />
         </div>
     );
 }

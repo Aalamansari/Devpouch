@@ -114,7 +114,7 @@ export default function JsonFormatterPage() {
             />
 
             {/* Ad banner */}
-            <AdBanner slot="json-footer" format="horizontal" />
+            <AdBanner />
         </div>
     );
 }

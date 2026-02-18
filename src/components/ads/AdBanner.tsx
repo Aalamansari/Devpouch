@@ -1,15 +1,26 @@
 "use client";
 
+import { useEffect } from "react";
+
 interface AdBannerProps {
-    slot?: string;
-    format?: "horizontal" | "rectangle" | "vertical";
     className?: string;
 }
 
-export function AdBanner({ slot, format = "horizontal", className = "" }: AdBannerProps) {
+export function AdBanner({ className = "" }: AdBannerProps) {
     const isProduction = process.env.NODE_ENV === "production";
 
-    // In development, show a placeholder
+    useEffect(() => {
+        if (!isProduction) return;
+        try {
+            (
+                (window as unknown as { adsbygoogle: unknown[] }).adsbygoogle =
+                    (window as unknown as { adsbygoogle: unknown[] }).adsbygoogle || []
+            ).push({});
+        } catch {
+            // ignore duplicate push errors
+        }
+    }, [isProduction]);
+
     if (!isProduction) {
         return (
             <div className={`ad-container ${className}`}>
@@ -22,15 +33,14 @@ export function AdBanner({ slot, format = "horizontal", className = "" }: AdBann
         );
     }
 
-    // In production, render actual Google AdSense
     return (
         <div className={`ad-container ${className}`}>
             <ins
                 className="adsbygoogle"
                 style={{ display: "block" }}
-                data-ad-client={process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || ""}
-                data-ad-slot={slot || ""}
-                data-ad-format={format === "horizontal" ? "horizontal" : format === "rectangle" ? "rectangle" : "vertical"}
+                data-ad-client="ca-pub-6847588376023576"
+                data-ad-slot="4229592148"
+                data-ad-format="auto"
                 data-full-width-responsive="true"
             />
         </div>

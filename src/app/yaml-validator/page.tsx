@@ -124,7 +124,7 @@ export default function YamlValidatorPage() {
                 processingTime={processingTime}
                 error={error}
             />
-            <AdBanner slot="yaml-footer" format="horizontal" />
+            <AdBanner />
         </div>
     );
 }

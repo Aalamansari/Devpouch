@@ -113,7 +113,7 @@ export default function XmlFormatterPage() {
                 processingTime={processingTime}
                 error={error}
             />
-            <AdBanner slot="xml-footer" format="horizontal" />
+            <AdBanner />
         </div>
     );
 }

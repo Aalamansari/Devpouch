@@ -131,7 +131,7 @@ export default function CsvJsonConverterPage() {
                 processingTime={processingTime}
                 error={error}
             />
-            <AdBanner slot="csv-footer" format="horizontal" />
+            <AdBanner />
         </div>
     );
 }
